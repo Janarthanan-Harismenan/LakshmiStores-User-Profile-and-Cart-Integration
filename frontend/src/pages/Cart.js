@@ -41,20 +41,6 @@ function Cart({ cartItems, setCartItems }) {
     setCartItems(newCartItems);
   };
 
-  //   const handlePlaceOrder = () => {
-  //     fetch(`${process.env.REACT_APP_API_URL}/orders`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ cartItems }),
-  //     }).then(
-  //       setCartItems([]),
-  //       setComplete(true),
-  //       toast.success("Order placed successfully")
-  //     );
-  //   };
-
   const handlePlaceOrder = () => {
     fetch(`${process.env.REACT_APP_API_URL}/orders`, {
       method: "POST",
@@ -69,7 +55,7 @@ function Cart({ cartItems, setCartItems }) {
         }
         return response.json();
       })
-      .then((data) => {
+      .then(() => {
         setComplete(true);
         setCartItems([]);
         toast.success("Order placed successfully");
@@ -80,21 +66,33 @@ function Cart({ cartItems, setCartItems }) {
       });
   };
 
-  return cartItems.length != 0 ? (
+  const calculateTotal = () => {
+    const total = cartItems.reduce(
+      (acc, item) => acc + item.quantity * item.price,
+      0
+    );
+    return total.toFixed(2); // Ensure two decimal places
+  };
+
+  return cartItems.length !== 0 ? (
     <Fragment>
-      <div className="container container-fluid">
-        <h2 className="mt-5">
-          Your Cart:{" "}
-          <b>
-            {cartItems.length} {cartItems.length == 1 ? "item" : "items"}
-          </b>
-        </h2>
+      <div
+        className="container container-fluid"
+        style={{ backgroundColor: "#f8f9fa", color: "#343a40" }}
+      >
+        <div className="row d-flex justify-content-between">
+          <h2 className="mt-5">
+            Your Cart:{" "}
+            <b>
+              {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
+            </b>
+          </h2>
+        </div>
 
         <div className="row d-flex justify-content-between">
           <div className="col-12 col-lg-8">
-            {console.log(cartItems)}
             {cartItems.map((item) => (
-              <Fragment>
+              <Fragment key={item._id}>
                 <hr />
                 <div className="cart-item">
                   <div className="row">
@@ -102,23 +100,33 @@ function Cart({ cartItems, setCartItems }) {
                       <img
                         src={item.images[0].image}
                         alt={item.name}
-                        height="90"
-                        width="115"
+                        style={{
+                          height: "90px",
+                          width: "115px",
+                          objectFit: "contain",
+                        }}
                       />
                     </div>
 
                     <div className="col-5 col-lg-3">
-                      <Link to={"product/" + item._id}>{item.name}</Link>
+                      <Link
+                        to={`product/${item._id}`}
+                        style={{ textDecoration: "none", color: "#0056b3" }}
+                      >
+                        {item.name}
+                      </Link>
                     </div>
 
                     <div className="col-4 col-lg-2 mt-4 mt-lg-0">
-                      <p id="card_item_price">${item.price}</p>
+                      <p id="card_item_price" style={{ color: "#343a40" }}>
+                        {item.price.toFixed(2)} LKR
+                      </p>
                     </div>
 
                     <div className="col-4 col-lg-3 mt-4 mt-lg-0">
                       <div className="stockCounter d-inline">
                         <span
-                          className="btn btn-danger minus"
+                          className="btn btn-outline-danger minus"
                           onClick={() => handleSubtraction(item._id)}
                         >
                           -
@@ -127,10 +135,11 @@ function Cart({ cartItems, setCartItems }) {
                           type="number"
                           className="form-control count d-inline"
                           value={item.quantity}
+                          readOnly
+                          style={{ maxWidth: "60px", textAlign: "center" }}
                         />
-
                         <span
-                          className="btn btn-primary plus"
+                          className="btn btn-outline-success plus"
                           onClick={() => handleAddition(item._id)}
                         >
                           +
@@ -144,7 +153,8 @@ function Cart({ cartItems, setCartItems }) {
                     >
                       <i
                         id="delete_cart_item"
-                        className="fa fa-trash btn btn-danger"
+                        className="fa fa-trash btn btn-outline-danger"
+                        style={{ fontSize: "1.5rem" }}
                       ></i>
                     </div>
                   </div>
@@ -154,34 +164,28 @@ function Cart({ cartItems, setCartItems }) {
           </div>
 
           <div className="col-12 col-lg-3 my-4">
-            <div id="order_summary">
-              <h4>Order Summary</h4>
+            <div id="order_summary" className="bg-white p-3 rounded shadow">
+              <h4 className="text-dark">Order Summary</h4>
               <hr />
-              <p>
-                Subtotal:{" "}
-                <span className="order-summary-values">
+              <div className="d-flex justify-content-between mb-2">
+                <span className="font-weight-bold">Subtotal:</span>
+                <span>
                   {cartItems.reduce((acc, item) => acc + item.quantity, 0)}{" "}
-                  {cartItems.reduce((acc, item) => acc + item.quantity, 0) == 1
+                  {cartItems.reduce((acc, item) => acc + item.quantity, 0) === 1
                     ? "item"
                     : "items"}
                 </span>
-              </p>
-              <p>
-                Est. total:{" "}
-                <span className="order-summary-values">
-                  $
-                  {cartItems.reduce(
-                    (acc, item) => acc + item.quantity * item.price,
-                    0
-                  )}
-                </span>
-              </p>
-
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="font-weight-bold">Est. total:</span>
+                <span>{calculateTotal()} LKR</span>
+              </div>
               <hr />
               <button
                 id="checkout_btn"
                 className="btn btn-primary btn-block"
                 onClick={handlePlaceOrder}
+                style={{ backgroundColor: "#0056b3", borderColor: "#0056b3" }}
               >
                 Place Order
               </button>
@@ -197,8 +201,8 @@ function Cart({ cartItems, setCartItems }) {
       <h1 className="text-center mt-5 text-success">
         Order Placed Successfully
       </h1>
-      <p className="text-center mt-3 text-danger font-weight-bold fs-4">
-        Thank you for shopping with us.
+      <p className="text-center mt-3 font-weight-bold fs-4">
+        Thank you for shopping with us!
       </p>
     </Fragment>
   );

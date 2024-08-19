@@ -3,25 +3,49 @@ import Search from "./Search";
 import { Link } from "react-router-dom";
 
 function Header({ cartItems = [] }) {
+  const fontStyle = { fontFamily: "'Matemasie', sans-serif" };
+
   return (
-    <nav className="navbar row">
-      <div className="col-12 col-md-3">
-        <div className="navbar-brand">
-          <Link to="/">
-            <img width="150px" src="/images/logo.png" alt="Logo" />
+    <nav
+      className="navbar navbar-expand-lg"
+      style={{ backgroundColor: "#333" }}
+    >
+      <div className="container">
+        <Link
+          className="navbar-brand"
+          to="/"
+          style={{ color: "#FFFFFF", fontFamily: "sans-serif" }}
+        >
+          Lakshmi Stores
+        </Link>
+
+        <Search />
+
+        <div className="ml-auto">
+          <Link
+            to="/cart"
+            id="cart"
+            className="btn"
+            style={{
+              backgroundColor: "#87CEFA", // Light blue background
+              color: "#FFFFFF", // Dark text color for contrast
+              border: "1px solid #87CEFA", // Light blue border
+              fontFamily: "sans-serif",
+            }}
+          >
+            <i className="fas fa-shopping-cart"></i> Cart
+            <span
+              className="badge badge-pill fs-6"
+              style={{
+                backgroundColor: "#87CEFA",
+                color: "#FFFFFF",
+                fontFamily: "sans-serif",
+              }}
+            >
+              {cartItems.length}
+            </span>
           </Link>
         </div>
-      </div>
-
-      <Search />
-
-      <div className="col-12 col-md-3 mt-4 mt-md-0 text-center">
-        <Link to="/cart" id="cart" className="ml-3">
-          <i className="fas fa-shopping-cart"></i> Cart
-          <span className="ml-3" id="cart_count" style={{ marginLeft: "10px" }}>
-            {cartItems.length}
-          </span>
-        </Link>
       </div>
     </nav>
   );

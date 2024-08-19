@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 const ProductDetail = ({ cartItems = [], setCartItems }) => {
   const [product, setProduct] = useState(null);
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1); // Default quantity to 1
   const { id } = useParams();
 
   useEffect(() => {
@@ -14,14 +14,9 @@ const ProductDetail = ({ cartItems = [], setCartItems }) => {
       .catch((error) => console.error("Error fetching product:", error));
   }, [id]);
 
-  // const addToCart = () => {
-  //   const productInCart = cartItems.find((item) => item._id === id);
-  //   if (!productInCart && quantity > 0) {
-  //     setCartItems([...cartItems, { ...product, quantity }]);
-  //     toast.success("Product added to cart");
-  //   }
-  // };
   const addToCart = () => {
+    if (!product) return; // Handle case where product might be null
+
     const productInCart = cartItems.find((item) => item._id === id);
     if (!productInCart && quantity > 0) {
       setCartItems([...cartItems, { ...product, quantity }]);
@@ -34,8 +29,10 @@ const ProductDetail = ({ cartItems = [], setCartItems }) => {
   };
 
   const increaseQty = () => {
+    if (!product) return; // Handle case where product might be null
+
     if (quantity >= product.stock) {
-      return toast.error("Stock is not enough");
+      toast.error("Stock is not enough");
     } else {
       setQuantity((prevQty) => prevQty + 1);
     }
@@ -47,14 +44,14 @@ const ProductDetail = ({ cartItems = [], setCartItems }) => {
 
   // If the product is still loading, show a loading message
   if (!product) {
-    return <div>Loading...</div>;
+    return <div className="text-center mt-5">Loading...</div>;
   }
 
   const { name, price, description, ratings, images, category, stock } =
     product;
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5" style={{ fontFamily: "sans-serif" }}>
       <div className="row">
         <div className="col-md-6">
           <div
@@ -103,18 +100,21 @@ const ProductDetail = ({ cartItems = [], setCartItems }) => {
           <h1>{name}</h1>
           <h4 className="text-muted">{category}</h4>
           <p>{description}</p>
-          <h3>${price.toFixed(2)}</h3>
-          <div className="ratings mt-auto">
+          <h3>{price.toFixed(2)} LKR</h3>
+          <div className="ratings mt-3">
             <div className="rating-outer">
               <div
                 className="rating-inner"
-                style={{ width: `${(ratings / 5) * 100}%` }}
+                style={{
+                  width: `${(ratings / 5) * 100}%`,
+                  backgroundColor: "#87CEFA",
+                }}
               ></div>
             </div>
             <span id="no_of_reviews">({product.numberOfReviews} Reviews)</span>
           </div>
 
-          <div className="d-flex justify-content-center align-items-center mt-3">
+          <div className="d-flex align-items-center mt-3">
             <div className="input-group me-3" style={{ width: "auto" }}>
               <button
                 className="btn btn-outline-danger"
@@ -136,7 +136,7 @@ const ProductDetail = ({ cartItems = [], setCartItems }) => {
             </div>
             <button
               className="btn btn-primary"
-              disabled={product.stock == 0}
+              disabled={product.stock === 0}
               onClick={addToCart}
             >
               <i className="fas fa-shopping-cart"></i> Add to Cart
